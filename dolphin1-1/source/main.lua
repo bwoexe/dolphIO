@@ -60,6 +60,8 @@ import 'soundManager'
 
 playdate.display.setRefreshRate(20)
 
+local gfx = playdate.graphics
+
 -- local references
 local FrameTimer_update = playdate.frameTimer.updateTimers
 local spritelib = playdate.graphics.sprite
@@ -67,11 +69,52 @@ local spritelib = playdate.graphics.sprite
 -- create our level (only one here for demo purposes!)
 local level = Level('untitled.json')
 
+-- game states
+
+local kGameState = {initial, ready, playing, paused, over}
+local currentState = kGameState.initial
+
+local kGameInitialState = 0
+local kGameGetReadyState = 1
+local kGamePlayingState = 2
+local kGamePausedState = 3
+local kGameOverState = 4
+
+local gameState = kGameInitialState
+local spritelib = gfx.sprite
+local screenWidth = playdate.display.getWidth()
+local screenHeight = playdate.display.getHeight()
+
+local function startGame()
+	gameState = kGamePlayingState
+	print("startGame()")
+end
 
 function playdate.update()
+	if gameState == kGameInitialState then
+		gfx.setColor(gfx.kColorWhite)
+		gfx.fillRect(0, 0, screenWidth, screenHeight)
+		local playButton = gfx.image.new('img/playButton.png')
+		local y = screenHeight/2 - playButton.height/2
+		playButton:draw(screenWidth/2 - playButton.width/2, y)
+	elseif gameState == kGamePlayingState then
+		spritelib.update()
+		FrameTimer_update()
+	end
+end
 
-	spritelib.update()
-	
-	FrameTimer_update()
+function playdate.AButtonUp()
+	print("AButtonUp()")
+	if gameState == kGameInitialState then
+		buttonDown = false
+		startGame()
+	end
+end
 
+function playdate.BButtonUp()
+	print("BButtonUp()")
+	if gameState == kGameInitialState then
+		buttonDown = false
+		startGame()
+	end
 end
